@@ -144,7 +144,13 @@ class HipDump:
                     since = chats[0]["date"]
             except IOError:
                 chats, since = [], None  # No saved chats.
-            new_chats = list(self.chats(item, since))
+            try:
+                new_chats = list(self.chats(item, since))
+            except hypchat.requests.HttpNotFound:
+                # TODO: threw this in when I thought it was a deleted user
+                # causing the error, but It's not that and I didn't investigate.
+                logging.debug("Not found: {}".format(pathname))
+                continue
             if len(new_chats):
                 chats = new_chats + chats
                 HipDump.mkdir(pathname)
